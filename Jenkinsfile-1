@@ -4,7 +4,6 @@ pipeline {
     GITHUB_TOKEN=credentials('github-token')
     IMAGE_NAME='darinpope/jenkins-example-cosign'
     IMAGE_VERSION='8.5-204'
-    REGISTRY_CREDENTIALS = credentials('docker-cred')
   }
   stages {
     stage('cleanup') {
@@ -17,12 +16,9 @@ pipeline {
         sh 'docker build -t $IMAGE_NAME:$IMAGE_VERSION .'
       }
     }
-stage('login to GHCR') {
+    stage('login to GHCR') {
       steps {
-       def dockerImage = docker.image("${IMAGE_NAME}")
-            docker.withRegistry('https://index.docker.io/v1/', "docker-cred") {
-                dockerImage.push()
-            }
+        sh 'echo "$GITHUB_TOKEN_PSW" | docker login ghcr.io -u $GITHUB_TOKEN_USR --password-stdin'
       }
     }
     stage('tag image') {
